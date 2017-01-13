@@ -2,7 +2,7 @@ var $ = {};
 
 $.ajax = function ajax(options) {
   // data (object, string, or array) converted to string if not already, appended to request
-  var data = options.data? $.convertToQueryString(options.data) : null;
+  var data = options.data ? $.convertToQueryString(options.data) : null;
 
   // error : function that takes XMLH obj, string status, string of error
   var error = options.error || null;
@@ -35,6 +35,57 @@ $.ajax = function ajax(options) {
 
   xhr.send(data);
 }
+
+$.get = function get(options) {
+  var url = options.url;
+
+  // data (object, string, or array) converted to string if not already, appended to request
+  var data = options.data ? $.convertToQueryString(options.data) : null;
+
+  // success : function that takes (response from server, string status, jQXHR)
+  var success = options.success || null;
+
+  var dataType = options.dataType || "";
+
+  // Construct and send xhr object
+  var xhr = new XMLHttpRequest();
+  xhr.addEventListener('load', function(e) {
+    if (xhr.status >= 200 && xhr.status < 300 && success) {
+      success(this.response, this.statusText, this);
+    }
+  });
+
+  xhr.open( 'GET', url);
+  xhr.responseType = dataType;
+
+  xhr.send(data);
+}
+
+$.post = function post(options) {
+  var url = options.url;
+
+  // data (object, string, or array) converted to string if not already, appended to request
+  var data = options.data ? $.convertToQueryString(options.data) : null;
+
+  // success : function that takes (response from server, string status, jQXHR)
+  var success = options.success || null;
+
+  var dataType = options.dataType || "";
+
+  // Construct and send xhr object
+  var xhr = new XMLHttpRequest();
+  xhr.addEventListener('load', function(e) {
+    if (xhr.status >= 200 && xhr.status < 300 && success) {
+      success(this.response, this.statusText, this);
+    }
+  });
+
+  xhr.open( 'POST', url);
+  xhr.responseType = dataType;
+
+  xhr.send(data);
+}
+
 
 $.convertToQueryString = function(obj) {
   if (typeof obj === "string") {
@@ -96,11 +147,10 @@ var testPostOptions = {
          userId: "1"},
   method: 'POST',
   url: "https://reqres.in/api/posts",
-  asyncBool: true
+  asyncBool: true,
+  dataType: 'json'
 };
 
-
-
-
-
-$.ajax(testPostOptions);
+$.post(testPostOptions);
+// $.get(testOptions);
+// $.ajax(testPostOptions);
