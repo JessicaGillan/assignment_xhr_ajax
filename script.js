@@ -2,7 +2,7 @@ var $ = {};
 
 $.ajax = function ajax(options) {
   // data (object, string, or array) converted to string if not already, appended to request
-  var data = options.data? convertToQueryString(options.data) : null;
+  var data = options.data? $.convertToQueryString(options.data) : null;
 
   // error : function that takes XMLH obj, string status, string of error
   var error = options.error || null;
@@ -19,16 +19,14 @@ $.ajax = function ajax(options) {
 
   // Construct and send xhr object
   var xhr = new XMLHttpRequest();
-  if (success)
-    xhr.addEventListener('success',
-                          function() { success(this.response, this.statusText, this) });
-
-  if (error)
-    xhr.addEventListener('error',
-                          function() { error(this, this.status, this.statusText) });
-  if (complete)
-    xhr.addEventListener('load',
-                         function() { complete(this, this.statusText) });
+  xhr.addEventListener('load', function(e) {
+    if (xhr.status >= 200 && xhr.status < 300 && success) {
+      success(this.response, this.statusText, this);
+    } else if (error && xhr.status >= 300 && xhr.status < 200) {
+      error(this, this.status, this.statusText);
+    }
+    if (complete) complete(this, this.statusText);
+  });
 
   xhr.open( method, url, asyncBool);
 
@@ -51,11 +49,11 @@ $.convertToQueryString = function(obj) {
 }
 
 var testOptions = {
-  // complete: function(xhr, status){
-  //   console.log("completed")
-  //   console.log( xhr );
-  //   console.log( "status text:",status );
-  // },
+  complete: function(xhr, status){
+    console.log("completed")
+    console.log( xhr );
+    console.log( "status text:",status );
+  },
 
   success: function(response, status, xhr){
     console.log("success", response);
@@ -74,4 +72,35 @@ var testOptions = {
   asyncBool: true
 }
 
-$.ajax(testOptions);
+var testPostOptions = {
+  complete: function(xhr, status){
+    console.log("completed")
+    console.log( xhr );
+    console.log( "status text:",status );
+  },
+
+  success: function(response, status, xhr){
+    console.log("success", response);
+    console.log( xhr );
+    console.log( "status text:",status );
+  },
+
+  error: function(xhr, status, statusText){
+    console.log("error", xhr);
+    console.log( "status:",status );
+    console.log( "status text:", statusText );
+  },
+
+  data: {title: "Foo",
+         body: "Bar",
+         userId: "1"},
+  method: 'POST',
+  url: "https://reqres.in/api/posts",
+  asyncBool: true
+};
+
+
+
+
+
+$.ajax(testPostOptions);
